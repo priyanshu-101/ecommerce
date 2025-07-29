@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 
-const Navbar = ({ user, onSignOut }) => {
+const Navbar = ({ user, onSignOut, onSearch }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
   const [cartItems] = useState(3) 
   const userMenuRef = useRef(null)
 
@@ -18,6 +19,12 @@ const Navbar = ({ user, onSignOut }) => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value
+    setSearchTerm(value)
+    onSearch(value) 
+  }
 
   return (
     <header className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -53,11 +60,12 @@ const Navbar = ({ user, onSignOut }) => {
           </nav>
 
           <div className="flex items-center space-x-2">
-            {/* Search Bar - Hidden on small screens, shown on large */}
             <div className="hidden lg:block relative">
               <input
                 type="text"
                 placeholder="Search products..."
+                value={searchTerm}
+                onChange={handleSearchChange}
                 className="w-64 px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -77,14 +85,12 @@ const Navbar = ({ user, onSignOut }) => {
               )}
             </button>
 
-            {/* Wishlist Icon */}
             <button className="p-2 text-gray-700 hover:text-red-500 transition-colors">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
 
-            {/* User Profile with Dropdown */}
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -104,7 +110,6 @@ const Navbar = ({ user, onSignOut }) => {
                 </svg>
               </button>
 
-              {/* Dropdown Menu */}
               {isUserMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
                   <div className="py-1">
@@ -156,6 +161,8 @@ const Navbar = ({ user, onSignOut }) => {
               <input
                 type="text"
                 placeholder="Search products..."
+                value={searchTerm}
+                onChange={handleSearchChange}
                 className="w-full px-4 py-2 pl-10 pr-4 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
               />
               <svg className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
