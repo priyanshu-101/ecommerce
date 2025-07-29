@@ -46,16 +46,14 @@ const Wishlist = ({ isOpen, onClose, wishlistItems, onRemoveFromWishlist, onMove
             wishlistItems.map((item) => (
               <div key={item.id} className="flex items-center space-x-4 bg-red-50 rounded-lg p-3 border border-red-100">
                 {/* Product Image */}
-                <img 
-                  src={item.image} 
-                  alt={item.name}
-                  className="w-16 h-16 object-cover rounded-md"
-                  onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/64x64/f3f4f6/9ca3af?text=No+Image'
-                  }}
-                />
-                
-                {/* Product Details */}
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded-md"
+                    onError={(e) => {
+                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjMyIiB5PSIzMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIGZpbGw9IiM5Q0EzQUYiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMCI+Tm88L3RleHQ+Cjwvc3ZnPg=='
+                    }}
+                  />                {/* Product Details */}
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-gray-900 truncate">{item.name}</h3>
                   <p className="text-sm text-gray-500">₹{item.price}</p>
