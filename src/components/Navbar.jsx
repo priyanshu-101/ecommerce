@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import logo from '../assets/shopease.png'
 
 const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wishlistItemsCount = 0, onWishlistClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -32,9 +33,10 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
           {/* Logo */}
           <div className="flex items-center space-x-4">
             <div className="h-10 w-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {/* <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-              </svg>
+              </svg> */}
+              <img src={logo} alt="ShopEase Logo" className="h-20 w-40 object-cover" />
             </div>
             <h1 className="text-xl font-bold text-gray-900">ShopEase</h1>
           </div>
