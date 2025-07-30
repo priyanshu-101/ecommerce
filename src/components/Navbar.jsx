@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import logo from '../assets/shopease.png'
 
-const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wishlistItemsCount = 0, onWishlistClick, onOrdersClick }) => {
+const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wishlistItemsCount = 0, onWishlistClick, onOrdersClick, currentView = 'home', onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -32,32 +32,66 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
           <div className="flex items-center space-x-4">
-            <div className="h-10 w-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <button 
+              onClick={() => onNavigate('home')}
+              className="h-10 w-10 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center"
+            >
               {/* <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg> */}
               <img src={logo} alt="ShopEase Logo" className="h-20 w-40 object-cover cursor-pointer" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 cursor-pointer">ShopEase</h1>
+            </button>
+            <button 
+              onClick={() => onNavigate('home')}
+              className="text-xl font-bold text-gray-900 cursor-pointer hover:text-indigo-600 transition-colors"
+            >
+              ShopEase
+            </button>
           </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
+            <button 
+              onClick={() => onNavigate('home')}
+              className={`font-medium transition-colors ${
+                currentView === 'home' 
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                  : 'text-gray-700 hover:text-indigo-600'
+              }`}
+            >
               Home
-            </a>
-            <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => onNavigate('products')}
+              className={`font-medium transition-colors ${
+                currentView === 'products' 
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                  : 'text-gray-700 hover:text-indigo-600'
+              }`}
+            >
               Products
-            </a>
-            <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
-              Categories
-            </a>
-            <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
+            </button>
+
+            <button 
+              onClick={() => onNavigate('about')}
+              className={`font-medium transition-colors ${
+                currentView === 'about' 
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                  : 'text-gray-700 hover:text-indigo-600'
+              }`}
+            >
               About
-            </a>
-            <a href="#" className="text-gray-700 hover:text-indigo-600 font-medium transition-colors">
+            </button>
+            <button 
+              onClick={() => onNavigate('contact')}
+              className={`font-medium transition-colors ${
+                currentView === 'contact' 
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
+                  : 'text-gray-700 hover:text-indigo-600'
+              }`}
+            >
               Contact
-            </a>
+            </button>
           </nav>
 
           <div className="flex items-center space-x-2">
@@ -187,21 +221,58 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
             
             {/* Mobile Navigation Links */}
             <nav className="space-y-2">
-              <a href="#" className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors">
+              <button 
+                onClick={() => {
+                  onNavigate('home')
+                  setIsMenuOpen(false)
+                }}
+                className={`block w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  currentView === 'home'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                }`}
+              >
                 Home
-              </a>
-              <a href="#" className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors">
+              </button>
+              <button 
+                onClick={() => {
+                  onNavigate('products')
+                  setIsMenuOpen(false)
+                }}
+                className={`block w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  currentView === 'products'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                }`}
+              >
                 Products
-              </a>
-              <a href="#" className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors">
-                Categories
-              </a>
-              <a href="#" className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors">
+              </button>
+              <button 
+                onClick={() => {
+                  onNavigate('about')
+                  setIsMenuOpen(false)
+                }}
+                className={`block w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  currentView === 'about'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                }`}
+              >
                 About
-              </a>
-              <a href="#" className="block px-4 py-2 text-gray-700 hover:text-indigo-600 hover:bg-gray-50 rounded-md transition-colors">
+              </button>
+              <button 
+                onClick={() => {
+                  onNavigate('contact')
+                  setIsMenuOpen(false)
+                }}
+                className={`block w-full text-left px-4 py-2 rounded-md transition-colors ${
+                  currentView === 'contact'
+                    ? 'text-indigo-600 bg-indigo-50'
+                    : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                }`}
+              >
                 Contact
-              </a>
+              </button>
             </nav>
           </div>
         )}
