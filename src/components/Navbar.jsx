@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import logo from '../assets/shopease.png'
 
-const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wishlistItemsCount = 0, onWishlistClick }) => {
+const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wishlistItemsCount = 0, onWishlistClick, onOrdersClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
@@ -132,9 +132,12 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
                     <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                       Profile
                     </a>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                    <button
+                      onClick={onOrdersClick}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
                       Orders
-                    </a>
+                    </button>
                     <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
                       Settings
                     </a>
