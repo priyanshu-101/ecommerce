@@ -5,15 +5,18 @@ import Shop from './Shop.jsx'
 import Cart from './Cart.jsx'
 import Checkout from './Checkout.jsx'
 import Wishlist from './Wishlist.jsx'
+import Orders from './Orders.jsx'
 
 // Dashboard Component
 const Dashboard = ({ user, onSignOut }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [cartItems, setCartItems] = useState([])
   const [wishlistItems, setWishlistItems] = useState([])
+  const [orders, setOrders] = useState([])
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false)
   const [isDataLoaded, setIsDataLoaded] = useState(false)
 
   // Load user-specific data when user changes
@@ -22,6 +25,7 @@ const Dashboard = ({ user, onSignOut }) => {
       // When no user, clear the UI state but don't touch localStorage
       setCartItems([])
       setWishlistItems([])
+      setOrders([])
       setIsDataLoaded(true)
       return
     }
@@ -29,6 +33,7 @@ const Dashboard = ({ user, onSignOut }) => {
     const userId = user.uid
     const userCartKey = `shopease_cart_${userId}`
     const userWishlistKey = `shopease_wishlist_${userId}`
+    const userOrdersKey = `shopease_orders_${userId}`
 
     // Load user-specific cart
     const savedCart = localStorage.getItem(userCartKey)
@@ -58,6 +63,20 @@ const Dashboard = ({ user, onSignOut }) => {
       setWishlistItems([])
     }
 
+    // Load user-specific orders
+    const savedOrders = localStorage.getItem(userOrdersKey)
+    if (savedOrders) {
+      try {
+        const parsedOrders = JSON.parse(savedOrders)
+        setOrders(parsedOrders)
+      } catch (error) {
+        console.error('Error parsing orders:', error)
+        setOrders([])
+      }
+    } else {
+      setOrders([])
+    }
+
     setIsDataLoaded(true)
   }, [user?.uid])
 
@@ -76,6 +95,14 @@ const Dashboard = ({ user, onSignOut }) => {
       localStorage.setItem(userWishlistKey, JSON.stringify(wishlistItems))
     }
   }, [wishlistItems, user?.uid, isDataLoaded])
+
+  // Save orders to localStorage with user-specific key
+  useEffect(() => {
+    if (user?.uid && isDataLoaded) {
+      const userOrdersKey = `shopease_orders_${user.uid}`
+      localStorage.setItem(userOrdersKey, JSON.stringify(orders))
+    }
+  }, [orders, user?.uid, isDataLoaded])
 
   // Add item to cart
   const addToCart = (product) => {
@@ -151,6 +178,11 @@ const Dashboard = ({ user, onSignOut }) => {
     setIsCheckoutOpen(true)
   }
 
+  // Handle order creation
+  const handleOrderCreated = (orderData) => {
+    setOrders(prevOrders => [orderData, ...prevOrders])
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar 
@@ -161,6 +193,7 @@ const Dashboard = ({ user, onSignOut }) => {
         onCartClick={() => setIsCartOpen(true)}
         wishlistItemsCount={wishlistItems.length}
         onWishlistClick={() => setIsWishlistOpen(true)}
+        onOrdersClick={() => setIsOrdersOpen(true)}
       />
       <main className="flex-1 w-full">
         <Shop 
@@ -187,6 +220,7 @@ const Dashboard = ({ user, onSignOut }) => {
         cartItems={cartItems}
         grandTotal={grandTotal}
         onPaymentSuccess={clearCart}
+        onOrderCreated={handleOrderCreated}
       />
       
       <Wishlist
@@ -195,6 +229,12 @@ const Dashboard = ({ user, onSignOut }) => {
         wishlistItems={wishlistItems}
         onRemoveFromWishlist={removeFromWishlist}
         onMoveToCart={moveWishlistToCart}
+      />
+
+      <Orders
+        isOpen={isOrdersOpen}
+        onClose={() => setIsOrdersOpen(false)}
+        orders={orders}
       />
     </div>
   )

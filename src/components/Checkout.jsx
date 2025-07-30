@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-const Checkout = ({ isOpen, onClose, cartItems, grandTotal, onPaymentSuccess }) => {
+const Checkout = ({ isOpen, onClose, cartItems, grandTotal, onPaymentSuccess, onOrderCreated }) => {
   const [paymentMethod, setPaymentMethod] = useState('upi')
   const [isProcessing, setIsProcessing] = useState(false)
   const [paymentComplete, setPaymentComplete] = useState(false)
@@ -17,7 +17,24 @@ const Checkout = ({ isOpen, onClose, cartItems, grandTotal, onPaymentSuccess }) 
     setTimeout(() => {
       setIsProcessing(false)
       setPaymentComplete(true)
-      if (onPaymentSuccess) onPaymentSuccess() // Clear the cart
+      
+      // Create order object
+      const orderData = {
+        id: `OD${Date.now().toString().slice(-6)}`,
+        date: new Date().toISOString(),
+        items: cartItems,
+        totalItems: totalItems,
+        totalAmount: finalAmount,
+        paymentMethod: paymentMethod,
+        status: 'pending'
+      }
+      
+      // Call order creation callback
+      if (onOrderCreated) onOrderCreated(orderData)
+      
+      // Clear the cart
+      if (onPaymentSuccess) onPaymentSuccess()
+      
       setTimeout(() => {
         setPaymentComplete(false)
         onClose()
