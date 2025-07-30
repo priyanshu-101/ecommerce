@@ -82,17 +82,17 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Daily Essentials Delivered
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-green-100">
+            <p className="text-xl md:text-2xl mb-8 text-blue-100">
               Fresh groceries, household items & daily needs at your doorstep
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button 
                 onClick={() => onNavigate && onNavigate('products')}
-                className="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
+                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
               >
                 Shop Groceries
               </button>
-              <div className="text-green-100 text-sm">
+              <div className="text-blue-100 text-sm">
                 🚚 Free delivery on orders above $30
               </div>
             </div>
@@ -117,7 +117,7 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
               <div 
                 key={index}
                 onClick={() => onNavigate && onNavigate('categories')}
-                className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-all cursor-pointer hover:bg-green-50 group"
+                className="text-center p-6 bg-gray-50 rounded-xl hover:shadow-lg transition-all cursor-pointer hover:bg-blue-50 group"
               >
                 <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
                   {category.icon}
@@ -144,8 +144,8 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center p-6 bg-white rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -154,8 +154,8 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
             </div>
 
             <div className="text-center p-6 bg-white rounded-xl shadow-sm">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
@@ -213,7 +213,7 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
                     <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-sm font-semibold">
                       {product.discount}% OFF
                     </div>
-                    <div className="absolute top-2 right-12 bg-green-600 text-white px-2 py-1 rounded text-xs font-medium">
+                    <div className="absolute top-2 right-12 bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">
                       {product.category}
                     </div>
                     <button
@@ -250,7 +250,7 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
                   
                   <button
                     onClick={() => onAddToCart(product)}
-                    className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors font-medium"
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
                   >
                     Add to Cart
                   </button>
@@ -262,7 +262,7 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
           <div className="text-center mt-12">
             <button 
               onClick={() => onNavigate && onNavigate('products')}
-              className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-green-700 transition-colors"
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors"
             >
               View All Products
             </button>
@@ -276,17 +276,17 @@ const Home = ({ onAddToCart, onAddToWishlist, wishlistItems, onNavigate }) => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Start Shopping Today
           </h2>
-          <p className="text-xl text-green-100 mb-8">
+          <p className="text-xl text-blue-100 mb-8">
             Join thousands of happy customers who trust us for their daily needs
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button 
               onClick={() => onNavigate && onNavigate('products')}
-              className="bg-white text-green-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
+              className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors"
             >
               Shop Now
             </button>
-            <div className="flex items-center space-x-4 text-green-100">
+            <div className="flex items-center space-x-4 text-blue-100">
               <div className="flex items-center">
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
