@@ -14,71 +14,68 @@ const Dashboard = ({ user, onSignOut }) => {
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isWishlistOpen, setIsWishlistOpen] = useState(false)
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [isDataLoaded, setIsDataLoaded] = useState(false)
 
-  // Load cart from localStorage on component mount
+  // Load user-specific data when user changes
   useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem('shopease_cart')
-      if (savedCart && savedCart !== '[]') {
+    if (!user?.uid) {
+      // When no user, clear the UI state but don't touch localStorage
+      setCartItems([])
+      setWishlistItems([])
+      setIsDataLoaded(true)
+      return
+    }
+
+    const userId = user.uid
+    const userCartKey = `shopease_cart_${userId}`
+    const userWishlistKey = `shopease_wishlist_${userId}`
+
+    // Load user-specific cart
+    const savedCart = localStorage.getItem(userCartKey)
+    if (savedCart) {
+      try {
         const parsedCart = JSON.parse(savedCart)
-        if (parsedCart.length > 0) {
-          setCartItems(parsedCart)
-        }
+        setCartItems(parsedCart)
+      } catch (error) {
+        console.error('Error parsing cart:', error)
+        setCartItems([])
       }
-    } catch (error) {
-      console.error('Error loading cart from localStorage:', error)
-      localStorage.removeItem('shopease_cart')
+    } else {
+      setCartItems([])
     }
-  }, [])
 
-  // Load wishlist from localStorage on component mount
-  useEffect(() => {
-    try {
-      const savedWishlist = localStorage.getItem('shopease_wishlist')
-      if (savedWishlist && savedWishlist !== '[]') {
+    // Load user-specific wishlist
+    const savedWishlist = localStorage.getItem(userWishlistKey)
+    if (savedWishlist) {
+      try {
         const parsedWishlist = JSON.parse(savedWishlist)
-        if (parsedWishlist.length > 0) {
-          setWishlistItems(parsedWishlist)
-        }
+        setWishlistItems(parsedWishlist)
+      } catch (error) {
+        console.error('Error parsing wishlist:', error)
+        setWishlistItems([])
       }
-    } catch (error) {
-      console.error('Error loading wishlist from localStorage:', error)
-      localStorage.removeItem('shopease_wishlist')
+    } else {
+      setWishlistItems([])
     }
-  }, [])
 
-  // Save cart to localStorage whenever cartItems changes (but not on initial empty load)
-  useEffect(() => {
-    try {
-      if (cartItems.length > 0) {
-        localStorage.setItem('shopease_cart', JSON.stringify(cartItems))
-      } else {
-        // Only remove if we're intentionally clearing the cart
-        const savedCart = localStorage.getItem('shopease_cart')
-        if (savedCart && savedCart !== '[]') {
-          localStorage.removeItem('shopease_cart')
-        }
-      }
-    } catch (error) {
-      console.error('Error saving cart to localStorage:', error)
-    }
-  }, [cartItems])
+    setIsDataLoaded(true)
+  }, [user?.uid])
 
-  // Save wishlist to localStorage whenever wishlistItems changes
+  // Save cart to localStorage with user-specific key
   useEffect(() => {
-    try {
-      if (wishlistItems.length > 0) {
-        localStorage.setItem('shopease_wishlist', JSON.stringify(wishlistItems))
-      } else {
-        const savedWishlist = localStorage.getItem('shopease_wishlist')
-        if (savedWishlist && savedWishlist !== '[]') {
-          localStorage.removeItem('shopease_wishlist')
-        }
-      }
-    } catch (error) {
-      console.error('Error saving wishlist to localStorage:', error)
+    if (user?.uid && isDataLoaded) {
+      const userCartKey = `shopease_cart_${user.uid}`
+      localStorage.setItem(userCartKey, JSON.stringify(cartItems))
     }
-  }, [wishlistItems])
+  }, [cartItems, user?.uid, isDataLoaded])
+
+  // Save wishlist to localStorage with user-specific key  
+  useEffect(() => {
+    if (user?.uid && isDataLoaded) {
+      const userWishlistKey = `shopease_wishlist_${user.uid}`
+      localStorage.setItem(userWishlistKey, JSON.stringify(wishlistItems))
+    }
+  }, [wishlistItems, user?.uid, isDataLoaded])
 
   // Add item to cart
   const addToCart = (product) => {
@@ -121,7 +118,6 @@ const Dashboard = ({ user, onSignOut }) => {
   // Clear cart (after successful payment)
   const clearCart = () => {
     setCartItems([])
-    localStorage.removeItem('shopease_cart')
   }
 
   // Wishlist functions
