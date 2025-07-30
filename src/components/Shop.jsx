@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import ProductDetails from './ProductDetails.jsx';
 
 const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = [] }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
 
   const categories = [
     { id: 'All', name: 'All Items' },
@@ -71,54 +74,109 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     onAddToCart(product);
   };
 
+  const openProductDetails = (product) => {
+    setSelectedProduct(product);
+    setIsProductDetailsOpen(true);
+  };
+
+  const closeProductDetails = () => {
+    setIsProductDetailsOpen(false);
+    setSelectedProduct(null);
+  };
+
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Daily Needs Shop</h1>
-        <p className="text-gray-600">Fresh groceries and daily essentials delivered to your doorstep</p>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop by Category</h3>
-        <div className="flex flex-wrap gap-3">
-          {categories.map(category => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                selectedCategory === category.id
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {category.name}
-            </button>
-          ))}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="text-center">
+            <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              Shop Daily Essentials
+            </h1>
+            <p className="text-lg md:text-xl mb-6 text-blue-100">
+              Fresh groceries and daily needs delivered to your doorstep
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-blue-100 text-sm">
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Fresh Quality Products
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Same Day Delivery
+              </div>
+              <div className="flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                Best Prices Guaranteed
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            {selectedCategory === 'All' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name}
-            <span className="ml-2 text-sm text-gray-500">({displayProducts.length} items)</span>
-          </h2>
+      {/* Main Content */}
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Category Filter Section */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop by Category</h3>
+          <div className="flex flex-wrap gap-3">
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  selectedCategory === category.id
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                {category.name}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {/* Products Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-gray-900">
+              {selectedCategory === 'All' ? 'All Products' : categories.find(c => c.id === selectedCategory)?.name}
+              <span className="ml-2 text-sm text-gray-500">({displayProducts.length} items)</span>
+            </h2>
+          </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {displayProducts.map(product => (
             <div key={product.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden transform hover:scale-105">
               <div className="p-4">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                  onError={(e) => {
-                    e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzlDQTNBRiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2Ij5ObyBJbWFnZTwvdGV4dD4KPHN2Zz4=';
-                  }}
-                />
+                {/* Clickable Image Area */}
+                <div 
+                  className="cursor-pointer"
+                  onClick={() => openProductDetails(product)}
+                >
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded-lg mb-4 hover:opacity-90 transition-opacity"
+                    onError={(e) => {
+                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzlDQTNBRiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2Ij5ObyBJbWFnZTwvdGV4dD4KPHN2Zz4=';
+                    }}
+                  />
+                </div>
                 
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{product.name}</h3>
+                {/* Clickable Title */}
+                <h3 
+                  className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors"
+                  onClick={() => openProductDetails(product)}
+                >
+                  {product.name}
+                </h3>
                 
                 <div className="flex items-center mb-2">
                   <div className="flex items-center">
@@ -173,6 +231,18 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                     </svg>
                   </button>
                 </div>
+
+                {/* View Details Button */}
+                <button
+                  onClick={() => openProductDetails(product)}
+                  className="w-full mt-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-1"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  <span className="text-sm">View Details</span>
+                </button>
               </div>
             </div>
           ))}
@@ -190,6 +260,7 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
         )}
       </div>
 
+      {/* Stats Section */}
       <div className="bg-blue-50 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
@@ -205,6 +276,17 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
             <div className="text-gray-600">Delivery Service</div>
           </div>
         </div>
+      </div>
+
+      {/* Product Details Modal */}
+      <ProductDetails
+        product={selectedProduct}
+        isOpen={isProductDetailsOpen}
+        onClose={closeProductDetails}
+        onAddToCart={onAddToCart}
+        onAddToWishlist={onAddToWishlist}
+        wishlistItems={wishlistItems}
+      />
       </div>
     </div>
   )
