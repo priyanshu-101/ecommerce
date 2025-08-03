@@ -233,7 +233,7 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                 </div>
 
                 {/* View Details Button */}
-                <button
+                {/* <button
                   onClick={() => openProductDetails(product)}
                   className="w-full mt-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-1"
                 >
@@ -242,7 +242,7 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                   <span className="text-sm">View Details</span>
-                </button>
+                </button> */}
               </div>
             </div>
           ))}
