@@ -163,9 +163,12 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
                       <p className="font-medium">{user.displayName || 'User'}</p>
                       <p className="text-xs text-gray-500 truncate">{user.email}</p>
                     </div>
-                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                    <button
+                      onClick={() => onNavigate('profile')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                    >
                       Profile
-                    </a>
+                    </button>
                     <button
                       onClick={onOrdersClick}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
@@ -273,6 +276,34 @@ const Navbar = ({ user, onSignOut, onSearch, cartItemsCount = 0, onCartClick, wi
               >
                 Contact
               </button>
+              
+              {user && (
+                <>
+                  <div className="border-t my-2"></div>
+                  <button 
+                    onClick={() => {
+                      onNavigate('profile')
+                      setIsMenuOpen(false)
+                    }}
+                    className={`block w-full text-left px-4 py-2 rounded-md transition-colors ${
+                      currentView === 'profile'
+                        ? 'text-indigo-600 bg-indigo-50'
+                        : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    Profile
+                  </button>
+                  <button 
+                    onClick={() => {
+                      onOrdersClick()
+                      setIsMenuOpen(false)
+                    }}
+                    className="block w-full text-left px-4 py-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-gray-50 transition-colors"
+                  >
+                    Orders
+                  </button>
+                </>
+              )}
             </nav>
           </div>
         )}
