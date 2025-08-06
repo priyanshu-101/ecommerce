@@ -1,10 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProductDetails from './ProductDetails.jsx';
+import { getproducts } from '../api/product.js';
 
 const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = [] }) => {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Category mapping - you can customize these based on your API categories
+  const categoryMapping = {
+    'meal': 'Pulses', // Maps API category 'meal' to display category 'Pulses'
+    'dairy': 'Dairy',
+    'bakery': 'Bakery',
+    'biscuits': 'Biscuits',
+    'snacks': 'Snacks',
+    'namkeens': 'Namkeens',
+    'beverages': 'Beverages',
+    'grains': 'Grains',
+    'essentials': 'Essentials'
+  };
 
   const categories = [
     { id: 'All', name: 'All Items' },
@@ -19,50 +36,60 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     { id: 'Essentials', name: 'Daily Essentials' },
   ];
 
-  const products = [
-    { id: 1, name: 'Fresh Milk (1L)', category: 'Dairy', price: 55, image: 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.5 },
-    { id: 2, name: 'Whole Wheat Bread', category: 'Bakery', price: 35, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.3 },
-    { id: 3, name: 'Fresh Butter (500g)', category: 'Dairy', price: 180, image: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=300&h=300&fit=crop&crop=center', stock: 15, rating: 4.6 },
-    { id: 4, name: 'Paneer (250g)', category: 'Dairy', price: 90, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=300&h=300&fit=crop&crop=center', stock: 12, rating: 4.4 },
-    { id: 5, name: 'Curd (500g)', category: 'Dairy', price: 45, image: 'https://images.unsplash.com/photo-1571212515416-57ab12d9c3a6?w=300&h=300&fit=crop&crop=center', stock: 30, rating: 4.2 },
-    { id: 6, name: 'Pav Bread (8 pcs)', category: 'Bakery', price: 20, image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop&crop=center', stock: 40, rating: 4.1 },
-    { id: 7, name: 'Rusk (200g)', category: 'Bakery', price: 45, image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.0 },
-    { id: 8, name: 'Sandwich Bread', category: 'Bakery', price: 40, image: 'https://images.unsplash.com/photo-1549931319-a545dcf3bc73?w=300&h=300&fit=crop&crop=center', stock: 18, rating: 4.3 },
-    { id: 9, name: 'Parle-G Biscuits', category: 'Biscuits', price: 10, image: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop&crop=center', stock: 50, rating: 4.5 },
-    { id: 10, name: 'Marie Gold Biscuits', category: 'Biscuits', price: 25, image: 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=300&h=300&fit=crop&crop=center', stock: 35, rating: 4.2 },
-    { id: 11, name: 'Cream Biscuits', category: 'Biscuits', price: 30, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.4 },
-    { id: 12, name: 'Digestive Biscuits', category: 'Biscuits', price: 35, image: 'https://images.unsplash.com/photo-1564355808539-22fda35bed7e?w=300&h=300&fit=crop&crop=center', stock: 28, rating: 4.1 },
-    { id: 13, name: 'Lays Classic Chips', category: 'Snacks', price: 20, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center', stock: 45, rating: 4.3 },
-    { id: 14, name: 'Kurkure Masala', category: 'Snacks', price: 15, image: 'https://images.unsplash.com/photo-1613769049987-b31b641f25b1?w=300&h=300&fit=crop&crop=center', stock: 38, rating: 4.4 },
-    { id: 15, name: 'Bingo Mad Angles', category: 'Snacks', price: 10, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center', stock: 42, rating: 4.2 },
-    { id: 16, name: 'Popcorn Pack', category: 'Snacks', price: 25, image: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop&crop=center', stock: 30, rating: 4.0 },
-    { id: 17, name: 'Haldiram Bhujia', category: 'Namkeens', price: 40, image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.6 },
-    { id: 18, name: 'Mixture', category: 'Namkeens', price: 35, image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.3 },
-    { id: 19, name: 'Moong Dal', category: 'Namkeens', price: 45, image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&h=300&fit=crop&crop=center', stock: 18, rating: 4.4 },
-    { id: 20, name: 'Chana Jor', category: 'Namkeens', price: 30, image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=300&h=300&fit=crop&crop=center', stock: 22, rating: 4.1 },
-    { id: 21, name: 'Coca Cola (600ml)', category: 'Beverages', price: 40, image: 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&h=300&fit=crop&crop=center', stock: 35, rating: 4.2 },
-    { id: 22, name: 'Pepsi (600ml)', category: 'Beverages', price: 40, image: 'https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=300&h=300&fit=crop&crop=center', stock: 32, rating: 4.1 },
-    { id: 23, name: 'Sprite (600ml)', category: 'Beverages', price: 40, image: 'https://images.unsplash.com/photo-1581636625402-29b2a704ef13?w=300&h=300&fit=crop&crop=center', stock: 28, rating: 4.3 },
-    { id: 24, name: 'Thums Up (600ml)', category: 'Beverages', price: 40, image: 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&h=300&fit=crop&crop=center', stock: 30, rating: 4.4 },
-    { id: 25, name: 'Maaza Mango (600ml)', category: 'Beverages', price: 45, image: 'https://images.unsplash.com/photo-1534353341328-81e0f31c7ab5?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.5 },
-    { id: 26, name: 'Wheat Flour (5kg)', category: 'Grains', price: 200, image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center', stock: 15, rating: 4.4 },
-    { id: 27, name: 'Basmati Rice (5kg)', category: 'Grains', price: 450, image: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop&crop=center', stock: 12, rating: 4.6 },
-    { id: 28, name: 'Sugar (1kg)', category: 'Grains', price: 45, image: 'https://images.unsplash.com/photo-1559181567-c3190ca9959b?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.2 },
-    { id: 29, name: 'Salt (1kg)', category: 'Grains', price: 20, image: 'https://images.unsplash.com/photo-1620061783659-0d6d3e805a5d?w=300&h=300&fit=crop&crop=center', stock: 40, rating: 4.0 },
-    { id: 30, name: 'Chana Dal (1kg)', category: 'Pulses', price: 80, image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.3 },
-    { id: 31, name: 'Moong Dal (1kg)', category: 'Pulses', price: 90, image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=300&fit=crop&crop=center', stock: 18, rating: 4.4 },
-    { id: 32, name: 'Toor Dal (1kg)', category: 'Pulses', price: 85, image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=300&fit=crop&crop=center', stock: 22, rating: 4.2 },
-    { id: 33, name: 'Besan (1kg)', category: 'Pulses', price: 120, image: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center', stock: 15, rating: 4.5 },
-    { id: 34, name: 'Masoor Dal (1kg)', category: 'Pulses', price: 75, image: 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.1 },
-    { id: 35, name: 'Cooking Oil (1L)', category: 'Essentials', price: 140, image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.3 },
-    { id: 36, name: 'Onions (1kg)', category: 'Essentials', price: 30, image: 'https://images.unsplash.com/photo-1508747047fe-5bd94fb15ea2?w=300&h=300&fit=crop&crop=center', stock: 35, rating: 4.0 },
-    { id: 37, name: 'Potatoes (1kg)', category: 'Essentials', price: 25, image: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=300&h=300&fit=crop&crop=center', stock: 40, rating: 4.1 },
-    { id: 38, name: 'Tomatoes (1kg)', category: 'Essentials', price: 35, image: 'https://images.unsplash.com/photo-1546470427-e38e2d82bb1f?w=300&h=300&fit=crop&crop=center', stock: 30, rating: 4.2 },
-    { id: 39, name: 'Green Chillies (250g)', category: 'Essentials', price: 15, image: 'https://images.unsplash.com/photo-1583023587132-2a92987b85a8?w=300&h=300&fit=crop&crop=center', stock: 45, rating: 4.0 },
-    { id: 40, name: 'Ginger (250g)', category: 'Essentials', price: 40, image: 'https://images.unsplash.com/photo-1517594422361-5beb24e048ba?w=300&h=300&fit=crop&crop=center', stock: 25, rating: 4.3 },
-    { id: 41, name: 'Garlic (250g)', category: 'Essentials', price: 50, image: 'https://images.unsplash.com/photo-1596651205426-b4d4d3778b29?w=300&h=300&fit=crop&crop=center', stock: 20, rating: 4.1 },
-    { id: 42, name: 'Coriander (100g)', category: 'Essentials', price: 10, image: 'https://images.unsplash.com/photo-1557909114-4415ca4e0922?w=300&h=300&fit=crop&crop=center', stock: 30, rating: 4.2 },
-  ];
+  // Fetch products from API
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await getproducts();
+        
+        if (response.success && response.data) {
+
+          const transformedProducts = response.data
+            .filter(product => product.isActive) 
+            .map(product => ({
+              id: product.id,
+              name: product.name.replace(/"/g, ''), 
+              category: categoryMapping[product.category] || 'Essentials', 
+              price: parseInt(product.discountPrice || product.price), 
+              originalPrice: product.discountPrice ? parseInt(product.price) : null,
+              image: product.images && product.images.length > 0 
+                ? product.images[0] 
+                : getDefaultImage(product.category), 
+              stock: typeof product.stock === 'string' ? parseInt(product.stock) : product.stock,
+              rating: 4.0 + Math.random() * 1, 
+              description: product.description?.replace(/"/g, '') || '',
+              brand: product.brand || '',
+              specifications: product.specifications?.replace(/"/g, '') || '',
+            }));
+          
+          setProducts(transformedProducts);
+        } else {
+          setError('Failed to fetch products');
+        }
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Error loading products');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const getDefaultImage = (category) => {
+    const defaultImages = {
+      'meal': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center',
+      'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center',
+      'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop&crop=center',
+      'biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop&crop=center',
+      'snacks': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center',
+      'beverages': 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&h=300&fit=crop&crop=center',
+      'grains': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop&crop=center'
+    };
+    return defaultImages[category] || 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center';
+  };
 
   const displayProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -83,6 +110,37 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     setIsProductDetailsOpen(false);
     setSelectedProduct(null);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-lg text-gray-600">Loading products...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops! Something went wrong</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -177,6 +235,14 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                 >
                   {product.name}
                 </h3>
+
+                {/* Brand and Specifications */}
+                {product.brand && (
+                  <p className="text-sm text-gray-500 mb-1">Brand: {product.brand}</p>
+                )}
+                {product.specifications && (
+                  <p className="text-sm text-gray-600 mb-2">{product.specifications}</p>
+                )}
                 
                 <div className="flex items-center mb-2">
                   <div className="flex items-center">
@@ -192,12 +258,17 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
                     ))}
-                    <span className="ml-1 text-sm text-gray-600">({product.rating})</span>
+                    <span className="ml-1 text-sm text-gray-600">({product.rating.toFixed(1)})</span>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-2xl font-bold text-green-600">₹{product.price}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-2xl font-bold text-green-600">₹{product.price}</span>
+                    {product.originalPrice && (
+                      <span className="text-sm text-gray-500 line-through">₹{product.originalPrice}</span>
+                    )}
+                  </div>
                   <span className={`text-sm px-2 py-1 rounded-full ${
                     product.stock > 30 ? 'bg-green-100 text-green-800' :
                     product.stock > 15 ? 'bg-yellow-100 text-yellow-800' :
@@ -210,12 +281,17 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                 <div className="flex space-x-2">
                   <button
                     onClick={() => addToCart(product)}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-1 transform hover:scale-105"
+                    disabled={product.stock === 0}
+                    className={`flex-1 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-1 transform hover:scale-105 ${
+                      product.stock === 0
+                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8m-8 0a2 2 0 100 4 2 2 0 000-4zm8 0a2 2 0 100 4 2 2 0 000-4z" />
                     </svg>
-                    <span className="text-sm">Cart</span>
+                    <span className="text-sm">{product.stock === 0 ? 'Out of Stock' : 'Cart'}</span>
                   </button>
                   
                   <button
@@ -231,18 +307,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                     </svg>
                   </button>
                 </div>
-
-                {/* View Details Button */}
-                {/* <button
-                  onClick={() => openProductDetails(product)}
-                  className="w-full mt-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-1"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  <span className="text-sm">View Details</span>
-                </button> */}
               </div>
             </div>
           ))}
