@@ -11,6 +11,8 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const API_BASE_URL = 'http://localhost:5000'; 
+
   const getDefaultImage = (category) => {
     const defaultImages = {
       'meal': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center',
@@ -37,44 +39,73 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     return [{ id: 'All', name: 'All Items' }, ...categoryObjects];
   };
 
+  const getFullImageUrl = (imagePath) => {
+    if (!imagePath) return null;
+    const cleanPath = imagePath.replace(/"/g, '');
+    if (cleanPath.startsWith('http')) return cleanPath;
+    return `${API_BASE_URL}${cleanPath}`;
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         setError(null);
-
+        
+        console.log('Fetching products...');
         const response = await getproducts();
+        console.log('API Response:', response);
         
         if (response && response.success && response.data) {
           const activeProducts = response.data.filter(product => product.isActive);
+          console.log('Active products:', activeProducts);
 
-          const transformedProducts = activeProducts.map(product => ({
-            id: product.id,
-            name: product.name.replace(/"/g, ''),
-            category: product.category,
-            description: product.description?.replace(/"/g, '') || '',
-            brand: product.brand || '',
-            specifications: product.specifications?.replace(/"/g, '') || '',
-            price: parseInt(product.discountPrice || product.price),
-            originalPrice: product.discountPrice ? parseInt(product.price) : null,
-            image: product.images && product.images.length > 0 
-              ? product.images[0] 
-              : getDefaultImage(product.category),
-            stock: typeof product.stock === 'string' ? parseInt(product.stock) : product.stock,
-            rating: 4.0 + Math.random() * 1,
-          }));
+          const transformedProducts = activeProducts.map(product => {
+            const cleanName = product.name ? product.name.replace(/"/g, '') : 'Unknown Product';
+            const cleanDescription = product.description ? product.description.replace(/"/g, '') : '';
+            const cleanSpecs = product.specifications ? product.specifications.replace(/"/g, '') : '';
+            
+            let imageUrl = getDefaultImage(product.category);
+            if (product.images && product.images.length > 0) {
+              const fullImageUrl = getFullImageUrl(product.images[0]);
+              if (fullImageUrl) {
+                imageUrl = fullImageUrl;
+              }
+            }
+
+            const transformedProduct = {
+              id: product.id,
+              name: cleanName,
+              category: product.category || 'uncategorized',
+              description: cleanDescription,
+              brand: product.brand || 'Generic',
+              specifications: cleanSpecs,
+              price: parseInt(product.discountPrice || product.price || 0),
+              originalPrice: product.discountPrice ? parseInt(product.price || 0) : null,
+              image: imageUrl,
+              stock: typeof product.stock === 'string' ? parseInt(product.stock) : (product.stock || 0),
+              rating: 4.0 + Math.random() * 1,
+              isFeatured: product.isFeatured === 'true' || product.isFeatured === true,
+              isActive: product.isActive
+            };
+
+            console.log('Transformed product:', transformedProduct);
+            return transformedProduct;
+          });
           
+          console.log('All transformed products:', transformedProducts);
           setProducts(transformedProducts);
           
           const dynamicCategories = extractCategoriesFromProducts(activeProducts);
           setCategories(dynamicCategories);
 
         } else {
-          setError('Failed to fetch products');
+          console.error('Invalid response structure:', response);
+          setError('Failed to fetch products - Invalid response');
         }
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Error loading products');
+        setError(`Error loading products: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -208,7 +239,8 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                     alt={product.name}
                     className="w-full h-48 object-cover rounded-lg mb-4 hover:opacity-90 transition-opacity"
                     onError={(e) => {
-                      e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjNGNEY2Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzlDQTNBRiIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2Ij5ObyBJbWFnZTwvdGV4dD4KPHN2Zz4=';
+                      console.log('Image load error for:', product.name, 'URL:', product.image);
+                      e.target.src = getDefaultImage(product.category);
                     }}
                   />
                 </div>
@@ -248,7 +280,7 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
                     <span className="text-2xl font-bold text-green-600">₹{product.price}</span>
-                    {product.originalPrice && (
+                    {product.originalPrice && product.originalPrice > product.price && (
                       <span className="text-sm text-gray-500 line-through">₹{product.originalPrice}</span>
                     )}
                   </div>
