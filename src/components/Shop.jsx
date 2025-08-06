@@ -7,63 +7,68 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isProductDetailsOpen, setIsProductDetailsOpen] = useState(false);
   const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([{ id: 'All', name: 'All Items' }]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Category mapping - you can customize these based on your API categories
-  const categoryMapping = {
-    'meal': 'Pulses', // Maps API category 'meal' to display category 'Pulses'
-    'dairy': 'Dairy',
-    'bakery': 'Bakery',
-    'biscuits': 'Biscuits',
-    'snacks': 'Snacks',
-    'namkeens': 'Namkeens',
-    'beverages': 'Beverages',
-    'grains': 'Grains',
-    'essentials': 'Essentials'
+  const getDefaultImage = (category) => {
+    const defaultImages = {
+      'meal': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center',
+      'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center',
+      'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop&crop=center',
+      'biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop&crop=center',
+      'snacks': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center',
+      'beverages': 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&h=300&fit=crop&crop=center',
+      'grains': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop&crop=center',
+      'pulses': 'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=300&h=300&fit=crop&crop=center',
+      'essentials': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=300&h=300&fit=crop&crop=center'
+    };
+    return defaultImages[category] || 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center';
   };
 
-  const categories = [
-    { id: 'All', name: 'All Items' },
-    { id: 'Dairy', name: 'Dairy & Bread' },
-    { id: 'Bakery', name: 'Bakery Items' },
-    { id: 'Biscuits', name: 'Biscuits' },
-    { id: 'Snacks', name: 'Chips & Snacks' },
-    { id: 'Namkeens', name: 'Namkeens' },
-    { id: 'Beverages', name: 'Cold Drinks' },
-    { id: 'Grains', name: 'Atta & Grains' },
-    { id: 'Pulses', name: 'Dal & Besan' },
-    { id: 'Essentials', name: 'Daily Essentials' },
-  ];
+  const extractCategoriesFromProducts = (products) => {
+    const uniqueCategories = [...new Set(products.map(product => product.category))];
+    
+    const categoryObjects = uniqueCategories.map(category => ({
+      id: category,
+      name: category.charAt(0).toUpperCase() + category.slice(1)
+    }));
 
-  // Fetch products from API
+    return [{ id: 'All', name: 'All Items' }, ...categoryObjects];
+  };
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null);
+
         const response = await getproducts();
         
-        if (response.success && response.data) {
+        if (response && response.success && response.data) {
+          const activeProducts = response.data.filter(product => product.isActive);
 
-          const transformedProducts = response.data
-            .filter(product => product.isActive) 
-            .map(product => ({
-              id: product.id,
-              name: product.name.replace(/"/g, ''), 
-              category: categoryMapping[product.category] || 'Essentials', 
-              price: parseInt(product.discountPrice || product.price), 
-              originalPrice: product.discountPrice ? parseInt(product.price) : null,
-              image: product.images && product.images.length > 0 
-                ? product.images[0] 
-                : getDefaultImage(product.category), 
-              stock: typeof product.stock === 'string' ? parseInt(product.stock) : product.stock,
-              rating: 4.0 + Math.random() * 1, 
-              description: product.description?.replace(/"/g, '') || '',
-              brand: product.brand || '',
-              specifications: product.specifications?.replace(/"/g, '') || '',
-            }));
+          const transformedProducts = activeProducts.map(product => ({
+            id: product.id,
+            name: product.name.replace(/"/g, ''),
+            category: product.category,
+            description: product.description?.replace(/"/g, '') || '',
+            brand: product.brand || '',
+            specifications: product.specifications?.replace(/"/g, '') || '',
+            price: parseInt(product.discountPrice || product.price),
+            originalPrice: product.discountPrice ? parseInt(product.price) : null,
+            image: product.images && product.images.length > 0 
+              ? product.images[0] 
+              : getDefaultImage(product.category),
+            stock: typeof product.stock === 'string' ? parseInt(product.stock) : product.stock,
+            rating: 4.0 + Math.random() * 1,
+          }));
           
           setProducts(transformedProducts);
+          
+          const dynamicCategories = extractCategoriesFromProducts(activeProducts);
+          setCategories(dynamicCategories);
+
         } else {
           setError('Failed to fetch products');
         }
@@ -77,19 +82,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
 
     fetchProducts();
   }, []);
-
-  const getDefaultImage = (category) => {
-    const defaultImages = {
-      'meal': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center',
-      'dairy': 'https://images.unsplash.com/photo-1563636619-e9143da7973b?w=300&h=300&fit=crop&crop=center',
-      'bakery': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300&h=300&fit=crop&crop=center',
-      'biscuits': 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=300&h=300&fit=crop&crop=center',
-      'snacks': 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&h=300&fit=crop&crop=center',
-      'beverages': 'https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=300&h=300&fit=crop&crop=center',
-      'grains': 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300&h=300&fit=crop&crop=center'
-    };
-    return defaultImages[category] || 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=300&h=300&fit=crop&crop=center';
-  };
 
   const displayProducts = products.filter(product => {
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -111,7 +103,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     setSelectedProduct(null);
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -123,7 +114,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -144,7 +134,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header Section */}
       <section className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
@@ -178,9 +167,7 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
         </div>
       </section>
 
-      {/* Main Content */}
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Filter Section */}
         <div className="mb-8">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Shop by Category</h3>
           <div className="flex flex-wrap gap-3">
@@ -200,7 +187,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
           </div>
         </div>
 
-        {/* Products Section */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -213,7 +199,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
           {displayProducts.map(product => (
             <div key={product.id} className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden transform hover:scale-105">
               <div className="p-4">
-                {/* Clickable Image Area */}
                 <div 
                   className="cursor-pointer"
                   onClick={() => openProductDetails(product)}
@@ -228,7 +213,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                   />
                 </div>
                 
-                {/* Clickable Title */}
                 <h3 
                   className="text-lg font-semibold text-gray-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors"
                   onClick={() => openProductDetails(product)}
@@ -236,7 +220,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
                   {product.name}
                 </h3>
 
-                {/* Brand and Specifications */}
                 {product.brand && (
                   <p className="text-sm text-gray-500 mb-1">Brand: {product.brand}</p>
                 )}
@@ -324,7 +307,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
         )}
       </div>
 
-      {/* Stats Section */}
       <div className="bg-blue-50 rounded-xl p-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
@@ -342,7 +324,6 @@ const Shop = ({ searchQuery = '', onAddToCart, onAddToWishlist, wishlistItems = 
         </div>
       </div>
 
-      {/* Product Details Modal */}
       <ProductDetails
         product={selectedProduct}
         isOpen={isProductDetailsOpen}
